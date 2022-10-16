@@ -1,0 +1,71 @@
+1.2.a: Name and mathematically describe the 5 programming steps you would
+take to train this model with PyTorch using SGD on a single batch of data.
+
+The five steps are
+
+1.  Forward evaluation:
+        y_hat = Linear_1 -> f -> Linear_2 -> g
+              = g( Linear_2( f( Linear_1( x ))))
+
+    where
+        Linear_1(x) = W_1 * x + b_1
+        Linear_2(x) = W_2 * x + b_2
+        f(x) = max(x, 0)
+        g(x) = x
+
+    Substituting
+        y_hat = W_2 * (max(W_1 * x + b_1), 0) + b_2
+
+2.  Loss calculation:
+        L(y_hat, y) = ||y_hat - y||^2
+                    = ||W_2 * (max(W_1 * x + b_1), 0) + b_2 - y||^2
+
+3.  Clear accumulated gradients
+
+4.  Back propagation:
+        dL/dW_2 = 2 * L * dy_hat/dW_2
+                = 2 * L * max(W_1 * x + b_1, 0)
+
+        dL/dW_1 = 2 * L * dy_hat/dW_1
+                = 2 * L * W_2 * x if W_1 * x + b_1 >= 0
+                  0 if W_1 * x + b_1 < 0
+
+5.  Step:
+        dW_1 -= eta * dL/dW_1
+        dW_2 -= eta * dL/dW_2
+    where eta is the learning rate
+
+
+1.2.b: For a single data point (x, y), write down all inputs and outputs for
+forward pass of each layer.
+
+    Layer    |  Input                        Output                       
+    ----------------------------------------------------------------------
+    Linear_1 | [x, y] | W_1 * x + b_1
+       f     |        | max(W_1 * x + b_1, 0)
+    Linear_2 |   -    | W_2 * max(W_1 * x + b_1, 0) + b_2
+       g     |   -    |            -
+      Loss   |   -    | ||W_2 * max(W_1 * x + b_1, 0) + b_2 - y||^2
+
+1.2.c: Write down the gradient calculated from the backward pass.
+
+    Parameter | Gradient
+    --------------------
+        W_1   | 2 * (W_2 * max(W_1 * x + b_1, 0) + b_2 - y) * W_2 * x
+        b_1   | 2 * (W_2 * max(W_1 * x + b_1, 0) + b_2 - y) * W_2
+        W_2   | 2 * (W_2 * max(W_1 * x + b_1, 0) + b_2 - y) * max(W_1 * x + b_1, 0)
+        b_2   | 2 * W_2 * max(W_1 * x + b_1, 0) + b_2 - y
+
+1.2.d: Show the elements of dz_2/dz_1, dy_hat/dz_3 and dl/dy_hat.
+
+    dz_2/dz_1 = [1, 1] if W_1 * x + b_1 >= 0, else 0
+    dy_hat/dz_3 = [1, 1]
+    dl/dy_hat = 2 * [y_hat_1 - y_1, y_hat_2 - y_2]
+
+1.3.c: Explain why ReLU can be beneficial for training a deeper network.
+
+    The gradient for the ReLU function doesn't vanish as the input gets large,
+    unlike sigmoid or tanh. Also, it's much faster to compute, which means the
+    network can be larger or train for longer.
+
+

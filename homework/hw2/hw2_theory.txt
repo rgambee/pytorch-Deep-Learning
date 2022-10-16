@@ -1,0 +1,56 @@
+1.1.a: Given an input image of dimension 10 x 11, what will be output dimension
+after applying a convolution with 3 x 3 kernel, stride of 2, and no padding?
+
+    The lack of padding reduces the size in each dimension by 2 (1 on each side).
+        8 x 9
+    The stride of 2 halves the size of each dimension (rounding down)
+        4 x 4
+
+1.1.b: Given an input of dimension C x H x W, what will be the dimension of the
+output of a convolutional layer with kernel of size K x K, padding P, stride
+S, dilation D, and F filters. Assume that H >= K, W >= K.
+
+1.2.a: Draw a diagram for this recurrent neural network, similar to the diagram
+of RNN we had in class.
+
+    The equations have c_t(z_t) and z_t(c_t). I assume the latter is supposed
+    to be z_t(c_t-1).
+
+
+    z_t-1 ---> X -----> + -------------------> z_t
+               ^        ^   |
+               |        |   v
+               |        |   X <- W_z
+    c_t-1 -----|- 1- -> X   |
+                        ^   v
+                        |   x ----> sigmoid -> c_t
+                        |   ^
+                        |   |
+                 W_x -> X   X <- W_c
+                        ^   ^
+                        |   |
+                       x_t -|
+
+1.2.b: What is the dimension of ct?
+
+    c_t has the same shape as W_c * x_t.
+    W_c has shape m x n.
+    x_t has shape n x 1.
+    So c_t has shape m x 1.
+
+    To confirm, c_t also has the same shape as W_z * z_t.
+    W_z has shape m x m.
+    z_t has shape m x 1.
+    So c_t has shape m x 1.
+
+1.2.c: Provide the dimension and expression for dl/dW_x, assuming we know dl/dz_t.
+
+    dl/dW_x has the same shape as W_x: m x n.
+
+    dl/dW_x = dl/dz_t * dz_t/dW_x
+            = dl/dz_t * (1 - c_t) * x_t' + c_t * dz_t-1/dW_x
+
+1.2.d: Can this network be subject to vanishing or exploding gradients? Why?
+
+    The sigmoid function has the potential to make gradients vanish if its
+    input becomes large. But it will also keep the gradients from exploding.

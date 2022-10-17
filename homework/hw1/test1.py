@@ -8,7 +8,7 @@ from mlp import MLP, mse_loss, bce_loss
 net = MLP(
     linear_1_in_features=2,
     linear_1_out_features=20,
-    f_function='relu',
+    f_function='identity', # relu
     linear_2_in_features=20,
     linear_2_out_features=5,
     g_function='identity'
@@ -26,7 +26,7 @@ net.backward(dJdy_hat)
 net_autograd = nn.Sequential(
     OrderedDict([
         ('linear1', nn.Linear(2, 20)),
-        ('relu', nn.ReLU()),
+        # ('relu', nn.ReLU()),
         ('linear2', nn.Linear(20, 5)),
     ])
 )
@@ -36,14 +36,24 @@ net_autograd.linear2.weight.data = net.parameters['W2']
 net_autograd.linear2.bias.data = net.parameters['b2']
 
 y_hat_autograd = net_autograd(x)
+print(torch.allclose(y_hat_autograd, y_hat))
 
 J_autograd = F.mse_loss(y_hat_autograd, y)
+print(J_autograd, J)
 
 net_autograd.zero_grad()
 J_autograd.backward()
 
+print(net_autograd.linear1.weight.grad.data)
+print(net.grads['dJdW1'])
 print((net_autograd.linear1.weight.grad.data - net.grads['dJdW1']).norm() < 1e-3)
+print(net_autograd.linear1.bias.grad.data)
+print(net.grads['dJdb1'])
 print((net_autograd.linear1.bias.grad.data - net.grads['dJdb1']).norm() < 1e-3)
+print(net_autograd.linear2.weight.grad.data)
+print(net.grads['dJdW2'])
 print((net_autograd.linear2.weight.grad.data - net.grads['dJdW2']).norm() < 1e-3)
+print(net_autograd.linear2.bias.grad.data)
+print(net.grads['dJdb2'])
 print((net_autograd.linear2.bias.grad.data - net.grads['dJdb2']).norm()< 1e-3)
 #------------------------------------------------
